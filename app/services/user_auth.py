@@ -98,7 +98,7 @@ class UserAuthService:
         user = models.User(first_name = first_name, last_name = last_name, email = email, password = password)
         self.session.add(user)
         self.session.commit()
-        return "Ok"
+        return "Registration was successful."
 
     def user_login(self, userlogindata: UserSignIn):
         email = userlogindata.email
