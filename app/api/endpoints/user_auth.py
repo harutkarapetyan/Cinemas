@@ -9,5 +9,5 @@ def user_signup(usersignupdata: UserSignup, auth_service = Depends(UserAuthServi
     return auth_service.user_signup(usersignupdata)
 
 @user_auth_router.post("/login")
-def user_signup(userlogindata: UserSignIn, auth_service = Depends(UserAuthService)):
+def user_signin(userlogindata: UserSignIn, auth_service = Depends(UserAuthService)):
     return auth_service.user_login(userlogindata)
