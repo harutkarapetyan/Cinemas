@@ -2,7 +2,6 @@ import smtplib
 from email.mime.text import MIMEText
 
 def send_email(subject, body, sender, recipient, password):
-    # msg = MIMEText(body)
     msg = MIMEText(body, "html")
     msg['Subject'] = subject
     msg['From'] = sender
