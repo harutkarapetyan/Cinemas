@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cinema Admin Authentication</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8f9fa;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .auth-container {
+            background-color: white;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 400px;
+        }
+
+        .auth-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .auth-header h1 {
+            color: #333;
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .auth-header p {
+            color: #666;
+            margin-bottom: 0;
+        }
+
+        .form-control {
+            margin-bottom: 1rem;
+        }
+
+        .btn-primary {
+            width: 100%;
+            padding: 0.75rem;
+            font-size: 1.1rem;
+        }
+
+        .auth-switch {
+            text-align: center;
+            margin-top: 1rem;
+        }
+
+        .auth-switch a {
+            color: #0d6efd;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .auth-switch a:hover {
+            text-decoration: underline;
+        }
+
+        .alert {
+            margin-top: 1rem;
+            display: none;
+        }
+
+        .loading-spinner {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(255, 255, 255, 0.8);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+    </style>
+</head>
+<body>
+    <div class="auth-container">
+        <div class="auth-header">
+            <h1>Cinema Admin</h1>
+            <p>Welcome to the admin panel</p>
+        </div>
+
+        <!-- Login Form -->
+        <form id="loginForm" class="auth-form">
+            <div class="mb-3">
+                <input type="email" class="form-control" id="loginEmail" placeholder="Email" required>
+            </div>
+            <div class="mb-3">
+                <input type="password" class="form-control" id="loginPassword" placeholder="Password" required>
+            </div>
+            <button type="submit" class="btn btn-primary">Login</button>
+            <div class="auth-switch">
+                <a id="showSignup">Don't have an account? Sign up</a>
+            </div>
+        </form>
+
+        <!-- Signup Form -->
+        <form id="signupForm" class="auth-form" style="display: none;">
+            <div class="mb-3">
+                <input type="text" class="form-control" id="signupFirstName" placeholder="First Name" required>
+            </div>
+            <div class="mb-3">
+                <input type="text" class="form-control" id="signupLastName" placeholder="Last Name" required>
+            </div>
+            <div class="mb-3">
+                <input type="email" class="form-control" id="signupEmail" placeholder="Email" required>
+            </div>
+            <div class="mb-3">
+                <input type="password" class="form-control" id="signupPassword" placeholder="Password" required>
+            </div>
+            <button type="submit" class="btn btn-primary">Sign Up</button>
+            <div class="auth-switch">
+                <a id="showLogin">Already have an account? Login</a>
+            </div>
+        </form>
+
+        <!-- Alert Messages -->
+        <div id="alert" class="alert" role="alert"></div>
+    </div>
+
+    <!-- Loading Spinner -->
+    <div id="loadingSpinner" class="loading-spinner">
+        <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        class Auth {
+            constructor() {
+                this.token = localStorage.getItem('token');
+                this.user = JSON.parse(localStorage.getItem('admin'));
+                this.setupEventListeners();
+                this.updateUI();
+            }
+
+            setupEventListeners() {
+                // Form submissions
+                document.getElementById('loginForm').addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    this.login();
+                });
+
+                document.getElementById('signupForm').addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    this.signup();
+                });
+
+                // Form switching
+                document.getElementById('showSignup').addEventListener('click', () => {
+                    document.getElementById('loginForm').style.display = 'none';
+                    document.getElementById('signupForm').style.display = 'block';
+                });
+
+                document.getElementById('showLogin').addEventListener('click', () => {
+                    document.getElementById('signupForm').style.display = 'none';
+                    document.getElementById('loginForm').style.display = 'block';
+                });
+            }
+
+            showLoading() {
+                document.getElementById('loadingSpinner').style.display = 'flex';
+            }
+
+            hideLoading() {
+                document.getElementById('loadingSpinner').style.display = 'none';
+            }
+
+            showAlert(message, type) {
+                const alert = document.getElementById('alert');
+                alert.className = `alert alert-${type}`;
+                alert.textContent = message;
+                alert.style.display = 'block';
+
+                setTimeout(() => {
+                    alert.style.display = 'none';
+                }, 5000);
+            }
+
+            async login() {
+                const email = document.getElementById('loginEmail').value;
+                const password = document.getElementById('loginPassword').value;
+
+                try {
+                    this.showLoading();
+                    const response = await fetch('http://127.0.0.1:8300/api/admin/auth/login', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ email, password })
+                    });
+
+                    const data = await response.json();
+
+                    if (response.ok) {
+                        this.token = data.access_token;
+                        this.user = data.user;
+                        localStorage.setItem('token', this.token);
+                        localStorage.setItem('user', JSON.stringify(this.user));
+                        this.showAlert('Login successful!', 'success');
+                        // Redirect to admin dashboard or show admin content
+                        window.location.href = './dashboard.html';
+                    } else {
+                        this.showAlert(data.detail || 'Login failed', 'danger');
+                    }
+                } catch (error) {
+                    this.showAlert('An error occurred', 'danger');
+                } finally {
+                    this.hideLoading();
+                }
+            }
+
+            async signup() {
+                const firstName = document.getElementById('signupFirstName').value;
+                const lastName = document.getElementById('signupLastName').value;
+                const email = document.getElementById('signupEmail').value;
+                const password = document.getElementById('signupPassword').value;
+
+                try {
+                    this.showLoading();
+                    const response = await fetch('http://127.0.0.1:8300/api/admin/auth/signup', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            first_name: firstName,
+                            last_name: lastName,
+                            email,
+                            password
+                        })
+                    });
+
+                    const data = await response.json();
+
+                    if (response.ok) {
+                        this.showAlert('Signup successful! Please login.', 'success');
+                        // Switch to login form
+                        document.getElementById('signupForm').style.display = 'none';
+                        document.getElementById('loginForm').style.display = 'block';
+                        document.getElementById('signupForm').reset();
+                    } else {
+                        this.showAlert(data.detail || 'Signup failed', 'danger');
+                    }
+                } catch (error) {
+                    this.showAlert('An error occurred', 'danger');
+                } finally {
+                    this.hideLoading();
+                }
+            }
+
+            updateUI() {
+                if (this.token && this.user) {
+                    // Redirect to admin dashboard if already logged in
+                    window.location.href = '/dashboard-html';
+                }
+            }
+        }
+
+        // Initialize auth
+        const auth = new Auth();
+    </script>
+</body>
+</html> 

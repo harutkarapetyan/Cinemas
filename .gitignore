@@ -1,0 +1,10 @@
+/venv
+/app/venv
+/app/.venv
+/app/app/venv
+/app/app/.venv
+/app/app/app/venv
+/app/app/app/.venv
+__pycache__
+/.idea
+
