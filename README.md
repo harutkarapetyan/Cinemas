@@ -1,8 +1,8 @@
-# Cinema Booking System – Test Assignment
+# Cinema Booking System
 
-This is a backend application for a cinema booking system, built as part of a test task for a Back-end Developer position.
+This is a backend application for a cinema booking system.
 
-## Task Requirements (Brief)
+## Task Requirements
 
 - There are multiple **cinema rooms** (e.g. red, blue, green)
 - Each room can show **different movies** at **different times**
@@ -14,9 +14,9 @@ This is a backend application for a cinema booking system, built as part of a te
 
 ---
 
-## Tech Stack
+## Technical Stack
 
-- **Python** & **FastAPI**
+- **Python** & FastAPI**
 - **SQLAlchemy** (ORM)
 - **PostgreSQL** (can be swapped)
 - **Pydantic** (data validation)
@@ -39,7 +39,7 @@ source .venv/bin/activate  # or .venv\Scripts\activate on Windows
 # 3. Install dependencies
 pip install -r requirements.txt
 
-# 4. Set up database (PostgreSQL or SQLite)
+# 4. Set up database (PostgreSQL)
 # update database URL in .env or config.py
 
 # 5. Run the application
