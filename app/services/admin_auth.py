@@ -99,7 +99,7 @@ class AdminAuthService:
         admin = models.Admin(first_name = first_name, last_name = last_name, email = email, password = password)
         self.session.add(admin)
         self.session.commit()
-        return "Ok"
+        return "Registration was successful."
 
     def admin_login(self, adminlogindata: AdminSignIn):
         email = adminlogindata.email
